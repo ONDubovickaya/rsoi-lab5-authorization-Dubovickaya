@@ -122,6 +122,7 @@ jobs:
       - name: All resources from namespace ondubovickaya
         run: |
           kubectl get all -n ondubovickaya
+      
       #- uses: education/autograding@v1
         # id: autograder
         # continue-on-error: true
