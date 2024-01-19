@@ -4,7 +4,7 @@
   "values": [
     {
       "key": "serviceUrl",
-      "value": "http://localhost:8050",
+      "value": "http://localhost:8080",
       "enabled": true
     },
     {
@@ -14,12 +14,12 @@
     },
     {
       "key": "username",
-      "value": "elena.romanova.1999.777@gmail.com",
+      "value": "user@gmail.com",
       "enabled": true
     },
     {
       "key": "password",
-      "value": "99LeNa043roMA77",
+      "value": "userpass",
       "enabled": true
     },
     {
