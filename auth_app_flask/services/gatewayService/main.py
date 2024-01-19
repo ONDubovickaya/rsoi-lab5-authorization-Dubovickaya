@@ -3,15 +3,11 @@ import requests
 import datetime
 import json
 import os
- 
-#from urllib.parse import quote_plus, urlencode 
+
 from flask import redirect, render_template, session, url_for
 
 from authlib.integrations.flask_client import OAuth
 import jwt
-#from jwt import PyJWKClient
-
-#from auth0.v3.authentication.token_verifier import TokenVerifier, AsymmetricSignatureVerifier
 
 cars_url = f"http://{os.environ['CARS_SERVICE_HOST']}:{os.environ['CARS_SERVICE_PORT']}"
 rental_url = f"http://{os.environ['RENTAL_SERVICE_HOST']}:{os.environ['RENTAL_SERVICE_PORT']}"
@@ -44,32 +40,6 @@ app = Flask(__name__)
 # подключение OAuth
 app.config['JSON_AS_ASCII'] = False
 #app.secret_key = os.environ['APP_SECRET_KEY']
-"""
-oauth = OAuth(app)
-oauth.register(
-    "auth0",
-    client_id=os.environ['AUTH0_CLIENT_ID'],
-    client_secret=os.environ['AUTH0_CLIENT_SECRET'],
-    client_kwargs={"scope": "openid profile email"},
-    server_metadata_url=f"https://{os.environ['AUTH0_DOMAIN']}/.well-known/openid-configuration",
-)
-
-
-def validation(id_token):
-    domain = os.environ['AUTH0_DOMAIN']
-    client_id = os.environ['AUTH0_CLIENT_ID']
-
-    jwks_url = 'https://{}/.well-known/jwks.json'.format(domain)
-    issuer = 'https://{}/'.format(domain)
-
-    try:
-        sv = AsymmetricSignatureVerifier(jwks_url)
-        tv = TokenVerifier(signature_verifier=sv, issuer=issuer, audience=client_id)
-        tv.verify(id_token)
-        return True
-    except:
-        return False 
-"""
 
 oauth = OAuth(app)
 oauth.register(
@@ -79,24 +49,7 @@ oauth.register(
     client_kwargs={"scope": "openid profile email"},
     server_metadata_url=f"https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/openid-configuration",
 )
-"""
-jwks = PyJWKClient("https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/jwks.json")
 
-def check_jwt(bearer):
-    try:
-        jwt_token = bearer.split()[1]
-        signing_key = jwks.get_signing_key_from_jwt(jwt_token)
-        data = jwt.decode(
-            jwt_token,
-            signing_key.key,
-            algorithms=["RS256"],
-            audience="https://dev-268y6str0e3mrg1n.us.auth0.com/api/v2/",
-            options={"verify_exp": False}
-        )
-        return data["name"]
-    except:
-        return False
-"""
 def get_signing_key(jwt_token):
     jwks_url = "https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/jwks.json"
     response = requests.get(jwks_url)
@@ -180,17 +133,7 @@ def get_rental(rentalUid):
 
     if not(client):
         return Response(status=401)
-    """
-    # проверка имени пользователя
-    if 'X-User-Name' not in request.headers.keys():
-        response = make_response(jsonify({'errors': ['user not found!!']}))
-        response.status_code = 400
-        response.headers['Content-Type'] = 'application/json'
-        
-        return response
     
-    user = request.headers['X-User-Name']
-    """
     # получаем данные из сервиса Rental
     url = f"{rental_url}/api/v1/rental/{rentalUid}"
     head = {'X-User-Name': client}
@@ -253,17 +196,6 @@ def get_rentals():
     if not(client):
         return Response(status=401)
     
-    """
-    # проверка имени пользователя 
-    if 'X-User-Name' not in request.headers.keys():
-        response = make_response(jsonify({'errors': ['user not found!!']}))
-        response.status_code = 400
-        response.headers['Content-Type'] = 'application/json'
-        
-        return response
-    
-    user = request.headers['X-User-Name']
-    """
     head = {'X-User-Name': client}
 
     # получаем данные из сервиса Rental
@@ -348,17 +280,7 @@ def post_rentals():
 
     if not(client):
         return Response(status=401)
-    """
-    # проверка имени пользователя 
-    if 'X-User-Name' not in request.headers.keys():
-        response = make_response(jsonify({'errors': ['user not found!!']}))
-        response.status_code = 400
-        response.headers['Content-Type'] = 'application/json'
-        
-        return response
     
-    user = request.headers['X-User-Name']
-    """
     head = {'X-User-Name': client}
 
     body, errors = validate_body(request.get_data())
@@ -565,13 +487,6 @@ def callback():
     token = oauth.auth0.authorize_access_token() 
     session["user"] = token 
     return redirect("/")
-    
-"""
-@app.route("/logout") 
-def logout(): 
-    session.clear() 
-    return redirect("https://dev-268y6str0e3mrg1n.us.auth0.com/v2/logout?" + urlencode({"returnTo": url_for("home", _external=True), "client_id": "2tzOe8ODXk00x0wmzA8RoWhSR552QD8f"),}, quote_via=quote_plus,))
-"""
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
