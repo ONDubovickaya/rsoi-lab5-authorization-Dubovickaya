@@ -3,6 +3,9 @@ import requests
 import datetime
 import json
 import os
+ 
+#from urllib.parse import quote_plus, urlencode 
+from flask import redirect, render_template, session, url_for
 
 from authlib.integrations.flask_client import OAuth
 import jwt
@@ -552,6 +555,23 @@ def health_check():
     response.status_code = 200
     
     return response
+
+@app.route("/authorize") 
+def login(): 
+    return oauth.auth0.authorize_redirect(redirect_uri=url_for("callback", _external=True))
+
+@app.route("/callback", methods=["GET", "POST"]) 
+def callback(): 
+    token = oauth.auth0.authorize_access_token() 
+    session["user"] = token 
+    return redirect("/")
+    
+"""
+@app.route("/logout") 
+def logout(): 
+    session.clear() 
+    return redirect("https://dev-268y6str0e3mrg1n.us.auth0.com/v2/logout?" + urlencode({"returnTo": url_for("home", _external=True), "client_id": "2tzOe8ODXk00x0wmzA8RoWhSR552QD8f"),}, quote_via=quote_plus,))
+"""
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
