@@ -53,32 +53,6 @@ app = Flask(__name__)
 # подключение OAuth
 app.config['JSON_AS_ASCII'] = False
 #app.secret_key = os.environ['APP_SECRET_KEY']
-"""
-oauth = OAuth(app)
-oauth.register(
-    "auth0",
-    client_id=os.environ['AUTH0_CLIENT_ID'],
-    client_secret=os.environ['AUTH0_CLIENT_SECRET'],
-    client_kwargs={"scope": "openid profile email"},
-    server_metadata_url=f"https://{os.environ['AUTH0_DOMAIN']}/.well-known/openid-configuration",
-)
-
-
-def validation(id_token):
-    domain = os.environ['AUTH0_DOMAIN']
-    client_id = os.environ['AUTH0_CLIENT_ID']
-
-    jwks_url = 'https://{}/.well-known/jwks.json'.format(domain)
-    issuer = 'https://{}/'.format(domain)
-
-    try:
-        sv = AsymmetricSignatureVerifier(jwks_url)
-        tv = TokenVerifier(signature_verifier=sv, issuer=issuer, audience=client_id)
-        tv.verify(id_token)
-        return True
-    except:
-        return False 
-"""
 
 oauth = OAuth(app)
 oauth.register(
@@ -88,24 +62,7 @@ oauth.register(
     client_kwargs={"scope": "openid profile email"},
     server_metadata_url=f"https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/openid-configuration",
 )
-"""
-jwks = PyJWKClient("https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/jwks.json")
 
-def check_jwt(bearer):
-    try:
-        jwt_token = bearer.split()[1]
-        signing_key = jwks.get_signing_key_from_jwt(jwt_token)
-        data = jwt.decode(
-            jwt_token,
-            signing_key.key,
-            algorithms=["RS256"],
-            audience="https://dev-268y6str0e3mrg1n.us.auth0.com/api/v2/",
-            options={"verify_exp": False}
-        )
-        return data["name"]
-    except:
-        return False
-"""
 def get_signing_key(jwt_token):
     jwks_url = "https://dev-268y6str0e3mrg1n.us.auth0.com/.well-known/jwks.json"
     response = requests.get(jwks_url)
